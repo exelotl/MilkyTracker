@@ -214,6 +214,20 @@ AudioDriverManager::AudioDriverManager() :
 	driverList[0] = new AudioDriver_Haiku();
 }
 
+#elif defined(DRIVER_3DS)
+
+//////////////////////////////////////////////////////////////////
+//					 	3DS implementation
+//////////////////////////////////////////////////////////////////
+#include "AudioDriver_3DS.h"
+
+AudioDriverManager::AudioDriverManager() :
+	defaultDriverIndex(0)
+{
+	ALLOC_DRIVERLIST(1);
+	driverList[0] = new AudioDriver_3DS();
+}
+
 #endif
 
 AudioDriverInterface* AudioDriverManager::getPreferredAudioDriver()

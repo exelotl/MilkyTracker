@@ -28,82 +28,48 @@
  */
 
 /*
- *  MilkyPlayCommon.h
- *  MilkyPlay 
+ *  AudioDriver_3DS.h
+ *  MilkyPlay
  *
- *  Created by Peter Barth on 23.12.04.
+ *  Created by Jeremy Clarke on 11.4.20
  *
  */
-#ifndef __MILKYPLAYCOMMON_H__
-#define __MILKYPLAYCOMMON_H__
+#ifndef __AUDIODRIVER_3DS_H__
+#define __AUDIODRIVER_3DS_H__
 
-#include "MilkyPlayTypes.h"
-#include "MilkyPlayResults.h"
+#include <3ds.h>
 
-#if defined WIN32 && !defined _WIN32_WCE
-#include <assert.h>
-#define ASSERT assert
-#endif
+#include "AudioDriver_COMPENSATE.h"
 
-#if defined WIN32 || defined _WIN32_WCE
-	#include <windows.h>
-#elif defined __PSP__
-	#include <assert.h>
-	#define ASSERT assert
+class AudioDriver_3DS : public AudioDriver_COMPENSATE
+{
+private:
 
-	#include <malloc.h>
-	#include <stdio.h>
-	#include <stdlib.h>
-	#include <string.h>
-	#include <math.h>
-#else
-	#include <assert.h>
-	#define ASSERT assert
+	ndspWaveBuf audioBuf[2];
+	int currentBufIndex;
+	u8 *audioData;
+
+	static void fill_audio(void *userdata);
 	
-	#include <string.h>
-	#include <stdio.h>
-	#include <stdlib.h>
-	#include <string.h>
-	#include <math.h>
-#endif
+	void clearAudioData();
+									 
+public:
+				AudioDriver_3DS();
 
-#if defined WIN32 || defined _WIN32_WCE
-	typedef TCHAR SYSCHAR;
-	typedef HANDLE FHANDLE;
-#ifdef __GNUWIN32__
-	typedef long long mp_int64;
-#else
-	typedef __int64 mp_int64;
-#endif
-#else
-	typedef long long mp_int64;
-	typedef char SYSCHAR;
-	typedef FILE* FHANDLE;
-#endif
+	virtual		~AudioDriver_3DS();
+			
+	virtual		mp_sint32	initDevice(mp_sint32 bufferSizeInWords, mp_uint32 mixFrequency, MasterMixer* mixer);
+	virtual		mp_sint32	closeDevice();
 
-#ifdef MILKYTRACKER
-	#define MP_MAXSAMPLES 256*16
-#else
-	#define MP_MAXSAMPLES 256
-#endif
+	virtual		mp_sint32	start();
+	virtual		mp_sint32	stop();
 
-#define MP_NUMEFFECTS 4
+	virtual		mp_sint32	pause();
+	virtual		mp_sint32	resume();
 
-#if (defined(WIN32) || defined(_WIN32_WCE)) && !defined(__FORCE_SDL_AUDIO__)
-	#define DRIVER_WIN32
-#elif defined(__APPLE__) && !defined(__FORCE_SDL_AUDIO__)
-	#define DRIVER_OSX
-#elif defined(__MILKYPLAY_UNIX__) && !defined(__FORCE_SDL_AUDIO__)
-	#define DRIVER_UNIX
-#elif defined(__PSP__) && !defined(__FORCE_SDL_AUDIO__)
-	#define DRIVER_PSP
-#elif defined(__HAIKU__) && !defined(__FORCE_SDL_AUDIO__)
-	#define DRIVER_HAIKU
-#elif defined(_3DS)
-	#define DRIVER_3DS
-#else
-	#define DRIVER_SDL
-#endif
+	virtual		const char*	getDriverID() { return "3DSAudio"; }
+	virtual		mp_sint32	getPreferredBufferSize() const { return 1024; }
+
+};
 
 #endif
-
